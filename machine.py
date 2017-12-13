@@ -1,5 +1,6 @@
 import numpy as np
-# from sympy import *
+import copy
+import random
 
 multSigmoid = 0.01
 
@@ -20,7 +21,7 @@ def m_sub(m1, m2):
 def m_pow(m1, m2):
     tempArray=[]
     for i in range(0, len(m1)):
-        tempArray.append(pow(m1[i],m2))
+        tempArray.append(pow(m1[i], m2))
     return tempArray
 
 
@@ -35,7 +36,7 @@ def sigmoidArray(z):
 
 def inverseSigmoid(z):
     if z != 1:
-        return (1.0/multSigmoid)*ln(z/(1-z))
+        return (1.0/multSigmoid)*np.ln(z/(1-z))
     return "DNE"
 
 def getMaxIndex(array):
@@ -91,17 +92,18 @@ class Neural_Network():
     def __init__(self, layers):
         self.layers = layers
         self.wb = [] #weights and biases
-        self.hwb = [] #previous weights and biases
-        self.trained = False
-        self.highScore = 0
+        self.best = [] #best weights and biases
 
-        for i in range(0, self.layers.__len__()-1):
-            self.wb.append([])
-            for j in range(0, self.layers[i+1]):
-                self.wb[i].append([])
-                for k in range(0, self.layers[i]+1):
-                    self.wb[i][j].append(np.random.rand(0, 1))
-        self.hwb = self.wb
+        # for i in range(0, self.layers.__len__()-1):
+        #     self.wb.append([])
+        #     for j in range(0, self.layers[i+1]):
+        #         self.wb[i].append([])
+        #         for k in range(0, self.layers[i]+1):
+        #             self.wb[i][j].append(random.random())
+
+        self.wb = [[[169.9187940715953, -49.76116412192303, 33.53736055705731, 295.1473552455269, -200.6279246004753, 64.7498230042388, 0.034607719445303164], [-4.910139460815705, -97.47998735419782, -38.85434208125214, 284.18005877584966, 116.16094978081475, -115.65539640651276, 0.8438650698113874], [24.295491544389172, 143.44944881925792, -69.71347446691416, -186.002755927534, 6.709436280895936, -14.783962264491894, 0.2254378182087965], [307.62265829817704, 280.65222396522296, 188.76128632710456, 32.1521136155177, -215.2182784007199, -2.3004157257050917, 0.07457733770530017]]]
+
+        self.best = self.wb
 
     def func(self, input):
         neurons = []
@@ -125,21 +127,14 @@ class Neural_Network():
     def getAnswer(self, input):
         return getMaxIndex(self.func(input))
 
-    def getAnswerContinuous(self, input):
-        print(self.func(input)[0])
-        return inverseSigmoid(self.func(input)[0])
-
     def getCost(self, val, answer):
         return m_sum(m_pow(m_sub(self.func(val), [answer]), 2))
 
-    def neat(self, score, alpha):
+    def bestWB(self):
+        self.best = copy.deepcopy(self.wb)
+
+    def neat(self, alpha):
         for i in range(0, len(self.layers) - 1):  # previous layer
             for j in range(0, self.layers[i + 1]):  # current neuron
                 for k in range(0, self.layers[i]):  # previous layer's neurons
-                    self.wb[i][j][k] =  alpha * np.random(-1, 1)
-
-                    if(score > self.highScore):
-                        self.highScore = score
-                        self.hwb = self.wb
-                    else:
-                        self.wb = self.hwb
+                    self.wb[i][j][k] = self.best[i][j][k] + alpha * (random.random()-0.5)
