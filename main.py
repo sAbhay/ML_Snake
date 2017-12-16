@@ -14,8 +14,7 @@ size = [50, 50]
 grid = [10, 10]
 tileSize = [size[0]/grid[0], size[1]/grid[1]]
 
-food = []
-currentFood = 0
+food = [numpy.random.randint(0, grid[0]-1), numpy.random.randint(0, grid[1]-1)]
 
 addedTime = 5 * grid[0]
 
@@ -26,10 +25,7 @@ for i in range(0, grid[0]):
     for j in range(0, grid[1]):
         tiles[i].append(0)
 
-for i in range(400):
-    food.append([numpy.random.randint(0, grid[0]-1), numpy.random.randint(0, grid[1]-1)])
-
-tiles[food[currentFood][0]][food[currentFood][1]] = 3
+tiles[food[0]][food[1]] = 3
 
 currentDir = 0
 
@@ -85,7 +81,7 @@ class Snake:
         self.tiles.__delitem__(len(self.tiles)-1)
 
     def eat(self):
-        if self.tiles[0][0] == food[currentFood][0] and self.tiles[0][1] == food[currentFood][1]:
+        if self.tiles[0][0] == food[0] and self.tiles[0][1] == food[1]:
             self.tiles.append([self.prevLast[0], self.prevLast[1]])
             return True
         return False
@@ -188,20 +184,18 @@ while running:
     score -= 1/snake.tiles.__len__()
 
     if snake.eat():
-        # food = [numpy.random.randint(0, 19), numpy.random.randint(0, 19)]
-        currentFood += 1
+        food = [numpy.random.randint(0, grid[0]-1), numpy.random.randint(0, grid[1]-1)]
         length += 1
 
         notDone = True
         while notDone:
-            if any(food[currentFood] == t for t in snake.tiles):
-                # food[currentFood] = [numpy.random.randint(0, grid[0]-1), numpy.random.randint(0, grid[1]-1)]
-                currentFood +=1
+            if any(food == t for t in snake.tiles):
+                food = [numpy.random.randint(0, grid[0]-1), numpy.random.randint(0, grid[1]-1)]
                 notDone = True
             else:
                 notDone = False
 
-        tiles[food[currentFood][0]][food[currentFood][1]] = 3
+        tiles[food[0]][food[1]] = 3
 
         score += 1000
         timer += addedTime
@@ -239,14 +233,13 @@ while running:
         snake.__init__(grid[0]/2, grid[1]/2)
         timer = addedTime
         iteration += 1
-        currentFood = 0
         length = 1
-        tiles[food[currentFood][0]][food[currentFood][1]] = 3
+        tiles[food[0]][food[1]] = 3
 
     if(len(snake.tiles) != length):
         running = False
 
-    pygame.draw.rect(screen, (0, 255, 0), (food[currentFood][0] * tileSize[0], food[currentFood][1]*tileSize[1], tileSize[0], tileSize[1]))
+    pygame.draw.rect(screen, (0, 255, 0), (food[0] * tileSize[0], food[1]*tileSize[1], tileSize[0], tileSize[1]))
 
     pygame.display.update()
 
