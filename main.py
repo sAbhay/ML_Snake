@@ -1,16 +1,14 @@
 import numpy
 import pygame
 from pygame.locals import *
-import time
 from machine import Neural_Network
-# import psyco
-
-# psyco.full()
 
 def distance(p0, p1):
     return numpy.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
-size = [50, 50]
+displaying = True
+
+size = [100, 100]
 grid = [10, 10]
 tileSize = [size[0]/grid[0], size[1]/grid[1]]
 
@@ -34,8 +32,6 @@ pygame.init()
 flags = DOUBLEBUF
 screen = pygame.display.set_mode((size[0], size[1]), flags)
 screen.set_alpha(None)
-
-# time.sleep(0.5)
 
 timer = addedTime
 score = 0
@@ -129,12 +125,12 @@ net = Neural_Network([3*grid[0]*grid[1], 4])
 running = True
 while running:
 
-    screen.fill((0, 0, 0))
+    if displaying:
+        screen.fill((0, 0, 0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-            pygame.quit()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -152,6 +148,10 @@ while running:
             elif event.key == pygame.K_DOWN:
                 if currentDir != 2:
                     currentDir = 3
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            # displaying = True
+            pass
 
     # netInput = snake.checkObstacles()
     #
@@ -200,7 +200,8 @@ while running:
         score += 1000
         timer += addedTime
 
-    snake.display()
+    if displaying:
+        snake.display()
 
     if snake.die() or timer <= 0:
         if snake.die():
@@ -225,7 +226,8 @@ while running:
             gen += 1
             iteration = 0
 
-        print("Gen: " + str(gen) + ", Iteration: " + str(iteration) + ", High Score: " + str(int(highScore)) + ", Score: " + str(int(score)) + ", Longest Length: " + str(longestLength) + ", Length: " + str(length) + ", Died: " + str(died))
+        print("Gen: " + str(gen) + ", Iteration: " + str(iteration) + ", High Score: " + str(int(highScore)) + ", Score: "
+              + str(int(score)) + ", Longest Length: " + str(longestLength) + ", Length: " + str(length) + ", Died: " + str(died))
 
         net.neat(50)
         score = 0
@@ -236,11 +238,12 @@ while running:
         length = 1
         tiles[food[0]][food[1]] = 3
 
-    if(len(snake.tiles) != length):
+    if len(snake.tiles) != length:
         running = False
 
-    pygame.draw.rect(screen, (0, 255, 0), (food[0] * tileSize[0], food[1]*tileSize[1], tileSize[0], tileSize[1]))
+    if displaying:
+        pygame.draw.rect(screen, (0, 255, 0), (food[0] * tileSize[0], food[1]*tileSize[1], tileSize[0], tileSize[1]))
 
-    pygame.display.update()
+        pygame.display.update()
 
 pygame.quit()
